@@ -5,97 +5,116 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: wedos-sa <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/10/10 13:48:52 by wedos-sa          #+#    #+#             */
-/*   Updated: 2025/10/10 17:07:05 by wedos-sa         ###   ########.fr       */
+/*   Created: 2025/10/11 13:18:14 by wedos-sa          #+#    #+#             */
+/*   Updated: 2025/10/11 18:49:55 by wedos-sa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minilibx-linux/mlx.h"
-#include <stdio.h>
 #include "fractol.h"
-
 
 double transformar_em_real(int x)
 {
-	return  -2.0 + ((double)x / 500.0) * 4.0;
+	return ((double)x / (WIDTH - 1)) * 5.0 - 2.0;
 }
 
 double transformar_em_imaginario(int y)
 {
-	return  -2.0 + ((double)y / 500.0) * 4.0;
+	return -((double)y / (HEIGHT - 1)) * 5.0 + 2.0;
 }
 
-void o_complex_faz_parte_do_fractal(double x, double y, int max_iter, void *mlx_connection, void *mlx_window, t_complex access)
+int o_complex_faz_parte_do_fractal(double x, double y, int max_iter)
 {
-    double a = 0.0; // parte real de z
-    double b = 0.0; // parte imaginária de z
-    int i = 0;
-	int	c = 0;
-	int j = 0;
+    double  a = 0.0;
+    double  b = 0.0;
+    int     i = 0;
+    double  temp;
+
     while (i < max_iter && (a * a + b * b <= 4.0))
     {
-        double temp = a * a - b * b + x; // novo a
-        b = 2 * a * b + y;               // novo b
+        temp = a * a - b * b + x;
+        b = 2 * a * b + y;
         a = temp;
         i++;
-		c++;
     }
     if (i == max_iter)
-	{
-		mlx_pixel_put(mlx_connection, mlx_window, access.px_x, access.px_y, 0xFFFFFF);
-    //    return 1; // pertence ao fractal
-	}
+        return (1);
     else
-	{
-		if (c < 5)
-			mlx_pixel_put(mlx_connection, mlx_window, access.px_x, access.px_y, 0xFFFFFF);
-		else if (c < 8)
-			mlx_pixel_put(mlx_connection, mlx_window, access.px_x, access.px_y, 0xFFFFFF);
-		else if (c < 10)
-			mlx_pixel_put(mlx_connection, mlx_window, access.px_x, access.px_y, 0x7A00F5);
-		else if (c < 15)
-			mlx_pixel_put(mlx_connection, mlx_window, access.px_x, access.px_y, 0x0025F5);
-		else if (c < 20)
-			mlx_pixel_put(mlx_connection, mlx_window, access.px_x, access.px_y, 0xF500AF);
-		else if (c < 42)
-			mlx_pixel_put(mlx_connection, mlx_window, access.px_x, access.px_y, 0xA352F5);
-	}
-      //  return 0; // não pertence
+		return (0);
 }
 
-int main()
+void color_func(t_access *access, int x, int y, int color)
 {
-	void	*mlx_connection; //iniciando a maquina grafica
-	void	*mlx_window;
-	t_complex access;
-	mlx_connection = mlx_init(); //iniciamos.
-	mlx_window = mlx_new_window(mlx_connection, 500, 500, "janela"); //janela abrida
-	int x;
-	int y;
+	char	*pixel;
+	
+	pixel = access->img_pointer
+		+ (y * access->line_len + x * (access->bits_per_pixel / 8));
 
-	x = 0;
+	*(unsigned int *)pixel = color;
+}
+
+void	put_one_pixel(t_access *access)
+{
+	int		x;
+	int		y;
+	t_complex	cmpx;
+
 	y = 0;
-	while (y <= 499)
+	while (y < HEIGHT)
 	{
-		while (x <= 499) //percorrendo tudo***************************
+		x = 0;
+		while (x < WIDTH)
 		{
-			access.px_x = x;
-			access.px_y = y;
-			access.re = transformar_em_real(x);
-			access.im = transformar_em_imaginario(y);
-			o_complex_faz_parte_do_fractal(access.re, access.im, 42, mlx_connection, mlx_window, access);
-			//if (o_complex_faz_parte_do_fractal(access.re, access.im, 10) == 1)
-			//{
-			//	mlx_pixel_put(mlx_connection, mlx_window, access.px_x, access.px_y, 0xFFFFFF);
-			//}
-			//else
-			//{
-			//	mlx_pixel_put(mlx_connection, mlx_window, access.px_x, access.px_y, 0);
-			//}
+			cmpx.re = transformar_em_real(x);
+			cmpx.im = transformar_em_imaginario(y);
+			if (o_complex_faz_parte_do_fractal(cmpx.re, cmpx.im, 42) == 1)
+				color_func(access, x, y, 0x000000);
+			else
+				color_func(access, x, y, 0xFFFFFF);
 			x++;
 		}
-		x = 0;
 		y++;
 	}
-	mlx_loop(mlx_connection);
+}
+
+void	create_image(t_access *access)
+{
+	/*imagem criada*/
+	access->img = mlx_new_image(
+			access->mlx_connection,
+			WIDTH,
+			HEIGHT);
+	/*valores da imagem*/
+	/*principal ponto é que é o primeiro item da lista*/
+	access->img_pointer = mlx_get_data_addr(
+			access->img,
+			&access->bits_per_pixel,
+			&access->line_len,
+			&access->endian);
+}
+
+int	main(void)
+{
+	t_access	access;
+
+	access.mlx_connection = mlx_init();
+
+	access.mlx_window = mlx_new_window(
+			access.mlx_connection,
+			WIDTH,
+			HEIGHT,
+			"Fract-ol - Wedos-sa");
+
+	create_image(&access);
+
+	put_one_pixel(&access);
+	mlx_put_image_to_window(
+			access.mlx_connection,
+			access.mlx_window,
+			access.img,
+			0,
+			0);
+
+	mlx_loop(access.mlx_connection);
+	
+	return (0);
 }
