@@ -6,7 +6,7 @@
 /*   By: wedos-sa <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/11 13:21:25 by wedos-sa          #+#    #+#             */
-/*   Updated: 2025/10/11 18:06:58 by wedos-sa         ###   ########.fr       */
+/*   Updated: 2025/10/13 12:15:29 by wedos-sa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,12 @@ typedef struct s_access
 	int		line_len;
 	/*endian*/
 	int		endian;
+
+	/*zoom*/
+	double	zoom;
+	double	max_iter;
+	double	x;
+	double	y;
 }	t_access;
 
 # endif
