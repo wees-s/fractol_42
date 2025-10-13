@@ -6,116 +6,45 @@
 /*   By: wedos-sa <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/11 13:18:14 by wedos-sa          #+#    #+#             */
-/*   Updated: 2025/10/13 12:25:53 by wedos-sa         ###   ########.fr       */
+/*   Updated: 2025/10/13 18:47:15 by wedos-sa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fractol.h"
 
-double to_real(int x, t_access *access)
+void	user_input(int argc, char **argv)
 {
-	return ((double)x / (WIDTH - 1)) * (4.0 / access->zoom) - (2.0 / access->zoom);
-}
-
-double to_imaginary(int y, t_access *access)
-{
-	return -((double)y / (HEIGHT - 1)) * (4.0 / access->zoom) + (2.0 / access->zoom);
-}
-
-int	fractal_calc(double x, double y, int max_iter)
-{
-	double	a = 0.0;
-	double	b = 0.0;
-	int		i = 0;
-	double	temp;
-
-    while (i < max_iter && (a * a + b * b <= 4.0))
+	if (argc < 2)
 	{
-		temp = a * a - b * b + x;
-		b = 2 * a * b + y;
-		a = temp;
-		i++;
+		ft_printf("Fract-ol\n\nWrong parameter. Try:\n");
+		ft_printf("./fractol mandelbrot\n./fractol julia xxx xxx");
 	}
-	if (i == max_iter)
-		return (1);
-	else
-		return (0);
-}
-
-void color_func(t_access *access, int x, int y, int color)
-{
-	char	*pixel;
-	
-	pixel = access->img_pointer
-		+ (y * access->line_len + x * (access->bits_per_pixel / 8));
-
-	*(unsigned int *)pixel = color;
-}
-
-void	put_image(t_access *access)
-{
-	int		x;
-	int		y;
-	t_complex	cmpx;
-
-	y = 0;
-	while (y < HEIGHT)
+	else if (ft_strncmp(argv[1], "mandelbrot", 10) == 0)
+		return ;
+	else if (ft_strncmp("julia", argv[1], 6) == 0)
 	{
-		x = 0;
-		while (x < WIDTH)
+		if (argc > 4 || argc < 4)
 		{
-			cmpx.re = to_real(x, access);
-			cmpx.im = to_imaginary(y, access);
-			if (fractal_calc(cmpx.re, cmpx.im, access->max_iter) == 1)
-				color_func(access, x, y, 0x000000);
-			else
-				color_func(access, x, y, 0xFFFFFF);
-			x++;
+			ft_printf("falta uns numeros ai, ou colocou muito\n");
+			exit(EXIT_FAILURE);
 		}
-		y++;
+		ft_printf("AINDA EM CONSTRUÇÃO");
+		exit(EXIT_SUCCESS);
 	}
-	mlx_put_image_to_window(access->mlx_connection,
-			access->mlx_window, access->img, 0, 0);
+	ft_printf("Fract-ol\n\nWrong parameter. Try:\n");
+	ft_printf("./fractol mandelbrot\n./fractol julia xxx xxx");
+	exit(EXIT_FAILURE);
 }
 
-void	create_image(t_access *access)
-{
-	access->img = mlx_new_image(
-			access->mlx_connection,
-			WIDTH,
-			HEIGHT);
-	access->img_pointer = mlx_get_data_addr(
-			access->img,
-			&access->bits_per_pixel,
-			&access->line_len,
-			&access->endian);
-}
-
-int	mouse_hook(int button, int x, int y, void *param)
-{
-	t_access *access = (t_access *)param;
-
-	(void)x;
-	(void)y;
-	if (button == 4)
-	{
-		access->zoom *= 1.1;
-		put_image(access);
-	}
-	else if (button == 5)
-	{
-		access->zoom /= 1.1;
-		put_image(access);
-	}
-	return (0);
-}
-
-int	main(void)
+int	main(int argc, char **argv)
 {
 	t_access	access;
 
+	user_input(argc, argv);
 	access.zoom = 1.0;
-	access.max_iter = 42;
+	access.max_iter = 50;
+	access.offset_x = 0.0;
+	access.offset_y = 0.0;
 	access.mlx_connection = mlx_init();
 	access.mlx_window = mlx_new_window(access.mlx_connection,
 			WIDTH, HEIGHT, "Fract-ol");
@@ -123,6 +52,5 @@ int	main(void)
 	put_image(&access);
 	mlx_mouse_hook(access.mlx_window, mouse_hook, &access);
 	mlx_loop(access.mlx_connection);
-		
 	return (0);
 }
