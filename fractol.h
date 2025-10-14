@@ -6,7 +6,7 @@
 /*   By: wedos-sa <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/11 13:21:25 by wedos-sa          #+#    #+#             */
-/*   Updated: 2025/10/14 14:51:21 by wedos-sa         ###   ########.fr       */
+/*   Updated: 2025/10/14 17:06:38 by wedos-sa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ typedef struct s_access
 	int		bits_per_pixel;
 	int		line_len;
 	int		endian;
+	int		fractal;
 	double	zoom;
 	double	max_iter;
 	double	offset_x;
@@ -48,6 +49,7 @@ typedef struct s_access
 	double	cb;
 }	t_access;
 
+int		mouse_hook_julia(int button, int x, int y, void *param);
 double	to_real(int x, t_access *access);
 double	to_imaginary(int y, t_access *access);
 int		mouse_hook(int button, int x, int y, void *param);
@@ -56,7 +58,7 @@ void	put_image(t_access *access);
 void	color_func(t_access *access, int x, int y, int i);
 int		fractal_calc(double x, double y, int max_iter);
 int		user_input(int argc, char **argv);
-void    put_image_julia(t_access *access);
+void	put_image_julia(t_access *access);
 int		julia_calc(double x, double y, t_access *access);
 
 #endif

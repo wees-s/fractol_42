@@ -6,7 +6,7 @@
 /*   By: wedos-sa <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 11:21:44 by wedos-sa          #+#    #+#             */
-/*   Updated: 2025/10/14 15:12:36 by wedos-sa         ###   ########.fr       */
+/*   Updated: 2025/10/14 16:15:10 by wedos-sa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,6 @@ int	check_string(const char *string)
 
 	have_dot = 0;
 	i = 0;
-	//if (!ft_isdigit(string[0]) || string[0] != '+' || string[0] != '-')
-	//	return (0);
 	while (string[i])
 	{
 		if (ft_isdigit(string[i]))

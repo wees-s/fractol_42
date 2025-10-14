@@ -6,7 +6,7 @@
 /*   By: wedos-sa <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 10:31:34 by wedos-sa          #+#    #+#             */
-/*   Updated: 2025/10/14 14:53:37 by wedos-sa         ###   ########.fr       */
+/*   Updated: 2025/10/14 15:57:57 by wedos-sa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,20 +14,50 @@
 
 int	julia_calc(double x, double y, t_access *access)
 {
-    double a = x;
-    double b = y;
-    int i = 0;
-    double temp;
+	double	a;
+	double	b;
+	int		i;
+	double	temp;
 
-    while (i < access->max_iter && (a * a + b * b <= 4.0))
-    {
-        temp = a * a - b * b + access->ca;
-        b = 2 * a * b + access->cb;
-        a = temp;
-        i++;
-    }
+	a = x;
+	b = y;
+	i = 0;
+	temp = 0.0;
+	while (i < access->max_iter && (a * a + b * b <= 4.0))
+	{
+		temp = a * a - b * b + access->ca;
+		b = 2 * a * b + access->cb;
+		a = temp;
+		i++;
+	}
+	return (i);
+}
 
-    return (i);
+int	mouse_hook_julia(int button, int x, int y, void *param)
+{
+	t_access	*access;
+
+	access = (t_access *)param;
+	access->old_re = to_real(x, access);
+	access->old_im = to_imaginary(y, access);
+	if (button == 4)
+	{
+		access->max_iter *= 1.003;
+		access->zoom *= 1.05;
+	}
+	else
+	{
+		access->max_iter /= 1.003;
+		access->zoom /= 1.05;
+	}
+	access->new_re = to_real(x, access);
+	access->new_im = to_imaginary(y, access);
+	access->offset_x += (access->old_re - access->new_re);
+	access->offset_y += (access->old_im - access->new_im);
+	mlx_destroy_image(access->mlx_connection, access->img);
+	create_image(access);
+	put_image_julia(access);
+	return (0);
 }
 
 void	put_image_julia(t_access *access)
@@ -52,5 +82,5 @@ void	put_image_julia(t_access *access)
 		y++;
 	}
 	mlx_put_image_to_window(access->mlx_connection,
-			access->mlx_window, access->img, 0, 0);
+		access->mlx_window, access->img, 0, 0);
 }
