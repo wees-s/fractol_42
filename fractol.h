@@ -6,7 +6,7 @@
 /*   By: wedos-sa <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/11 13:21:25 by wedos-sa          #+#    #+#             */
-/*   Updated: 2025/10/13 18:31:46 by wedos-sa         ###   ########.fr       */
+/*   Updated: 2025/10/14 14:51:21 by wedos-sa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,8 @@ typedef struct s_access
 	double	old_im;
 	double	new_re;
 	double	new_im;
+	double	ca;
+	double	cb;
 }	t_access;
 
 double	to_real(int x, t_access *access);
@@ -53,6 +55,8 @@ void	create_image(t_access *access);
 void	put_image(t_access *access);
 void	color_func(t_access *access, int x, int y, int i);
 int		fractal_calc(double x, double y, int max_iter);
-void	user_input(int argc, char **argv);
+int		user_input(int argc, char **argv);
+void    put_image_julia(t_access *access);
+int		julia_calc(double x, double y, t_access *access);
 
 #endif

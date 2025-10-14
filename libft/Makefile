@@ -6,7 +6,7 @@
 #    By: wedos-sa <wedos-sa@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/07/15 11:17:28 by wedos-sa          #+#    #+#              #
-#    Updated: 2025/10/01 14:35:11 by wedos-sa         ###   ########.fr        #
+#    Updated: 2025/10/14 14:41:49 by wedos-sa         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -60,7 +60,8 @@ SRCS =	ft_atoi.c			\
 	ft_printf.c				\
 	ft_print_address_i.c	\
 	ft_print_hex.c			\
-	ft_all_space.c
+	ft_all_space.c			\
+	ft_atof.c
 
 OBJS = $(SRCS:.c=.o)
 
