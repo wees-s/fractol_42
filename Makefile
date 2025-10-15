@@ -4,38 +4,42 @@ PROGRAM_NAME = fractol
 
 CC = gcc
 
-CFLAGS = -O3 -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra -Werror
+
+MLX_FLAGS = -O3 -lXext -lX11 -lm -lz
+
+DIR_LIB = ./libft/libft.a
+
+DIR_MLX = ./minilibx-linux/libmlx_Linux.a
 
 SRCS =	complex.c 		\
 		init.c			\
 		julia.c			\
-		main.c			\
 		mandelbrot.c	\
 
 OBJS = $(SRCS:.c=.o)
 
 RMAKE = make re
 
-all: $(NAME)
+all: $(PROGRAM_NAME)
 
 $(NAME): $(OBJS)
 	cd ./libft && $(RMAKE)
 	cd ./minilibx-linux && $(RMAKE)
 	@echo "============================="
-	@echo "Copying libft.a && libmlx_Linux.a --> push_swap.a"
-	cp ./libft/libft.a $(NAME)
-	cp ./minilibx-linux $(NAME)
-	@echo "============================="
 	@echo "All $(OBJS) --> $@"
 	ar rcs $@ $(OBJS)
-	gcc main.c $(NAME) -o $(PROGRAM_NAME)
+
+$(PROGRAM_NAME): $(NAME)
+	@echo "============================="
+	@echo "Compiling $(PROGRAM_NAME)"
+	$(CC) main.c $(NAME) $(DIR_LIB) $(DIR_MLX) $(MLX_FLAGS) -o $(PROGRAM_NAME)
 
 %.o: %.c
-	@echo "============================="
-	$(CC) $(CFLAGS) -c $^
+	@echo "Compiling $< ..."
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	@echo "============================="
 	@echo "Cleaning all $(OBJS)"
 	rm -f $(OBJS)
 	cd ./libft && make clean
@@ -48,4 +52,3 @@ fclean: clean
 re: fclean all
 
 .PHONY: all clean fclean re
-

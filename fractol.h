@@ -6,7 +6,7 @@
 /*   By: wedos-sa <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/11 13:21:25 by wedos-sa          #+#    #+#             */
-/*   Updated: 2025/10/15 15:03:44 by wedos-sa         ###   ########.fr       */
+/*   Updated: 2025/10/15 16:58:45 by wedos-sa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ typedef struct s_access
 	int		endian;
 	int		fractal;
 	double	zoom;
-	double	max_iter;
+	int		max_iter;
 	double	offset_x;
 	double	offset_y;
 	double	old_re;

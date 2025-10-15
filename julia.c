@@ -6,7 +6,7 @@
 /*   By: wedos-sa <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 10:31:34 by wedos-sa          #+#    #+#             */
-/*   Updated: 2025/10/15 15:21:14 by wedos-sa         ###   ########.fr       */
+/*   Updated: 2025/10/15 16:26:18 by wedos-sa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,10 @@ int	julia_calc(double x, double y, t_access *access)
 		a = temp;
 		i++;
 	}
-	return (i);
+	if (i == access->max_iter)
+		return (-1);
+	else
+		return (i);
 }
 
 int	mouse_hook_julia(int button, int x, int y, void *param)
