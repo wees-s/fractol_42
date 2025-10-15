@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_atof.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wedos-sa <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: wedos-sa <wedos-sa@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 11:21:44 by wedos-sa          #+#    #+#             */
-/*   Updated: 2025/10/14 16:15:10 by wedos-sa         ###   ########.fr       */
+/*   Updated: 2025/10/15 13:47:19 by wedos-sa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,12 +60,28 @@ int	decimal_count(const char *string)
 	return (decimal);
 }
 
-double	ft_atof(const char *string)
+void	free_all(char **split, char *string)
+{
+	int	i;
+
+	i = 0;
+	free(string);
+	while (split[i])
+	{
+		free(split[i]);
+		i++;
+	}
+	free(split);
+}
+
+double	ft_atof(char *string)
 {	
 	int		check;
 	int		decimal;
 	char	**s_string;
+	double	nb;
 
+	nb = 0.0;
 	s_string = NULL;
 	decimal = 1;
 	check = check_string(string);
@@ -78,7 +94,9 @@ double	ft_atof(const char *string)
 		decimal = decimal_count(string);
 		s_string = ft_split(string, '.');
 		string = ft_strjoin(s_string[0], s_string[1]);
-		return ((double)ft_atoi(string) / decimal);
+		nb = (double)ft_atoi(string) / decimal;
+		free_all(s_string, string);
+		return (nb);
 	}
 	return (0);
 }

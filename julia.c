@@ -6,7 +6,7 @@
 /*   By: wedos-sa <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 10:31:34 by wedos-sa          #+#    #+#             */
-/*   Updated: 2025/10/14 15:57:57 by wedos-sa         ###   ########.fr       */
+/*   Updated: 2025/10/15 15:21:14 by wedos-sa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,27 @@ int	mouse_hook_julia(int button, int x, int y, void *param)
 	access->new_im = to_imaginary(y, access);
 	access->offset_x += (access->old_re - access->new_re);
 	access->offset_y += (access->old_im - access->new_im);
+	mlx_destroy_image(access->mlx_connection, access->img);
+	create_image(access);
+	put_image_julia(access);
+	return (0);
+}
+
+int	key_press_julia(int keycode, void *param)
+{
+	t_access	*access;
+
+	access = (t_access *)param;
+	if (keycode == 65307)
+		close_window(access);
+	if (keycode == 65361)
+		access->offset_x = access->offset_x - 0.05;
+	if (keycode == 65363)
+		access->offset_x = access->offset_x + 0.05;
+	if (keycode == 65362)
+		access->offset_y = access->offset_y + 0.05;
+	if (keycode == 65364)
+		access->offset_y = access->offset_y - 0.05;
 	mlx_destroy_image(access->mlx_connection, access->img);
 	create_image(access);
 	put_image_julia(access);
