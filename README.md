@@ -1,6 +1,6 @@
-# pipex
+# fract-ol
 
-A program that mimics the behavior of shell pipes, redirecting output between commands as part of the 42 School curriculum.
+An interactive fractal renderer using the MLX42 graphics library, visualizing Mandelbrot and Julia sets in real-time as part of the 42 School curriculum.
 
 ## Table of Contents
 
@@ -8,36 +8,39 @@ A program that mimics the behavior of shell pipes, redirecting output between co
 - [Features](#features)
 - [Installation](#installation)
 - [Usage](#usage)
-- [How It Works](#how-it-works)
+- [Fractals](#fractals)
+- [Controls](#controls)
 - [Implementation Details](#implementation-details)
 - [Project Structure](#project-structure)
 - [Compilation](#compilation)
+- [Mathematical Concepts](#mathematical-concepts)
+- [Pixel Processing](#pixel-processing)
 - [Testing](#testing)
-- [Key Concepts](#key-concepts)
 - [Author](#author)
 
 ## Description
 
-`pipex` recreates the behavior of the shell pipe operator `|` in C. The program takes two commands and executes them in a pipeline, where the output of the first command becomes the input of the second command, just like in the shell.
+`fract-ol` is a fractal visualization program that renders the Mandelbrot and Julia sets with interactive controls. The project teaches graphics programming, complex number mathematics, and real-time rendering optimization using the MLX library.
 
-The project teaches fundamental Unix concepts including **pipes**, **process creation with fork**, **file descriptors**, and **program execution with execve**.
+The program converts pixel coordinates to complex plane coordinates, iterates the fractal equations, and colors pixels based on escape time, creating stunning visual fractals that can be zoomed and panned.
 
 ## Features
 
-- ✅ Executes two commands in a pipeline
-- ✅ Handles input/output file redirection
-- ✅ Supports both absolute and relative command paths
-- ✅ Automatic PATH resolution for commands
-- ✅ Proper error handling and exit codes
-- ✅ Memory-safe implementation with no leaks
-- ✅ Mimics exact shell behavior
+- ✅ Interactive Mandelbrot set visualization
+- ✅ Interactive Julia set visualization with configurable parameters
+- ✅ Real-time zoom with mouse scroll
+- ✅ Pan navigation with arrow keys
+- ✅ Smooth color gradients based on iteration depth
+- ✅ Optimized rendering with pixel-by-pixel iteration
+- ✅ Memory-safe implementation with proper cleanup
+- ✅ Responsive controls and smooth interactions
 
 ## Installation
 
 1. Clone the repository:
 ```bash
-git clone git@github.com:wees-s/pipex_42_scholl.git
-cd pipex_42_scholl
+git clone https://github.com/wees-s/fractol_42.git
+cd fractol_42
 ```
 
 2. Compile the project:
@@ -45,151 +48,266 @@ cd pipex_42_scholl
 make
 ```
 
-This will create the `pipex` executable.
+This will create the `fractol` executable.
 
 ## Usage
 
-### Basic Syntax
+### Mandelbrot Set
 
 ```bash
-./pipex file1 cmd1 cmd2 file2
+./fractol mandelbrot
 ```
 
-This is equivalent to the shell command:
+### Julia Set
+
+Requires two parameters (real and imaginary parts):
+
 ```bash
-< file1 cmd1 | cmd2 > file2
+./fractol julia <x> <y>
 ```
 
-### Examples
+#### Suggested Julia Parameters
 
-**Example 1: Simple pipe**
 ```bash
-./pipex infile "ls -l" "wc -l" outfile
+./fractol julia -0.70176 -0.3842
+./fractol julia -0.1011 0.9563
+./fractol julia 0.355 0.355
+./fractol julia -0.7269 0.1889
 ```
-Equivalent to:
+
+### Error Handling
+
+Invalid input examples:
+
 ```bash
-< infile ls -l | wc -l > outfile
+./fractol                    # No parameters
+./fractol invalid            # Invalid fractal type
+./fractol julia 0.5          # Missing y parameter
+./fractol julia 0.5 0.5 0.5  # Too many parameters
+./fractol julia abc def      # Non-numeric parameters
 ```
 
-**Example 2: Text processing**
-```bash
-./pipex input.txt "grep hello" "wc -w" output.txt
-```
-Equivalent to:
-```bash
-< input.txt grep hello | wc -w > output.txt
-```
+## Fractals
 
-**Example 3: Absolute path**
-```bash
-./pipex infile "/bin/cat" "grep pattern" outfile
-```
+### Mandelbrot Set
 
-**Example 4: Complex commands**
-```bash
-./pipex file1 "cat -e" "grep $" file2
-```
-
-## How It Works
-
-### Visual Representation
+The Mandelbrot set is the collection of complex numbers **c** for which the iteration does not diverge:
 
 ```
-┌─────────┐      ┌──────────┐      ┌──────────┐      ┌─────────┐
-│  file1  │ ───> │   cmd1   │ ───> │   PIPE   │ ───> │  cmd2   │ ───> │  file2  │
-│ (input) │      │ (child1) │      │ (buffer) │      │(child2) │      │(output) │
-└─────────┘      └──────────┘      └──────────┘      └─────────┘      └─────────┘
-    FD              FD 0→file1         pipe[0]            FD 0→pipe[0]      FD 1
-  (read)            FD 1→pipe[1]       pipe[1]            FD 1→file2      (write)
+z_{n+1} = z_n² + c
+z_0 = 0
 ```
 
-### Execution Flow
+**Characteristics:**
+- Always contains the point (0, 0)
+- Has a main cardioid body with circular bulb
+- Self-similar at different zoom levels
+- Symmetric about the real axis
 
-1. **Input Validation**: Check if arguments are valid (5 arguments, no empty strings)
-2. **Pipe Creation**: Create a pipe with `pipe()` to connect the two commands
-3. **First Fork**: Create first child process for `cmd1`
-   - Open input file and redirect to stdin (FD 0)
-   - Redirect stdout (FD 1) to pipe write end
-   - Execute `cmd1`
-4. **Second Fork**: Create second child process for `cmd2`
-   - Redirect stdin (FD 0) to pipe read end
-   - Open/create output file and redirect stdout (FD 1)
-   - Execute `cmd2`
-5. **Parent Process**: Close pipe ends and wait for both children to finish
-6. **Exit**: Return the exit status of the last command
+### Julia Set
+
+The Julia set is generated by iterating a complex function with a fixed parameter **c**:
+
+```
+z_{n+1} = z_n² + c
+z_0 = current_pixel_coordinate
+c = user_provided_constant
+```
+
+**Characteristics:**
+- Different shape for each value of **c**
+- Often displays intricate dendritic patterns
+- More sensitive to parameter changes than Mandelbrot
+- Can be fully connected or completely disconnected
+
+## Controls
+
+### Mouse Controls
+
+| Action | Effect |
+|--------|--------|
+| **Scroll Up (Button 4)** | Zoom in (1.05x) |
+| **Scroll Down (Button 5)** | Zoom out (0.95x) |
+
+Zoom is centered on the cursor position.
+
+### Keyboard Controls
+
+| Key | Effect |
+|-----|--------|
+| **ESC** | Close window and exit |
+| **Left Arrow (←)** | Pan left |
+| **Right Arrow (→)** | Pan right |
+| **Up Arrow (↑)** | Pan up |
+| **Down Arrow (↓)** | Pan down |
+
+Panning increments by 0.05 units per press.
 
 ## Implementation Details
 
-### Main Structure
+### Core Structures
 
 ```c
-typedef struct s_pipex
+typedef struct s_complex
 {
-    int     pipe_fd[2];    // Pipe file descriptors [0]=read, [1]=write
-    pid_t   pid1;          // First child process ID
-    pid_t   pid2;          // Second child process ID
-    int     status1;       // Exit status of first command
-    int     status2;       // Exit status of second command
-} t_pipex;
+    double  re;      // Real part
+    double  im;      // Imaginary part
+}   t_complex;
+
+typedef struct s_access
+{
+    void    *mlx_connection;    // MLX connection
+    void    *mlx_window;        // Window pointer
+    void    *img;               // Image buffer
+    char    *img_pointer;       // Pixel data
+    int     bits_per_pixel;     // BPP for colors
+    int     line_len;           // Line length in memory
+    int     endian;             // Endianness
+    int     fractal;            // Fractal type (1=Mandel, 2=Julia)
+    double  zoom;               // Current zoom level
+    int     max_iter;           // Maximum iterations
+    double  offset_x;           // X-axis offset
+    double  offset_y;           // Y-axis offset
+    double  ca;                 // Julia parameter (real)
+    double  cb;                 // Julia parameter (imaginary)
+}   t_access;
+```
+
+### Coordinate Conversion
+
+Converting pixel coordinates to complex plane coordinates:
+
+```c
+double to_real(int x, t_access *access)
+{
+    return (access->offset_x + ((double)x / (WIDTH - 1))
+            * (4.0 / access->zoom) - 2.0 / access->zoom);
+}
+
+double to_imaginary(int y, t_access *access)
+{
+    return (access->offset_y + (-((double)y / (HEIGHT - 1))
+                * (4.0 / access->zoom) + 2.0 / access->zoom));
+}
+```
+
+**Key transformations:**
+- Map pixel (0 to WIDTH) to complex plane range
+- Apply zoom scaling factor
+- Apply offset for panning
+- Y-axis is inverted (top = positive imaginary)
+
+### Iteration Functions
+
+**Mandelbrot Calculation:**
+
+```c
+int fractal_calc(double x, double y, int max_iter)
+{
+    double a = 0.0, b = 0.0;
+    int i = 0;
+    double temp;
+    
+    while (i < max_iter && (a*a + b*b <= 4.0))
+    {
+        temp = a*a - b*b + x;
+        b = 2*a*b + y;
+        a = temp;
+        i++;
+    }
+    
+    return (i == max_iter) ? -1 : i;  // -1 = in set, else = escape time
+}
+```
+
+**Julia Calculation:**
+
+```c
+int julia_calc(double x, double y, t_access *access)
+{
+    double a = x, b = y;
+    int i = 0;
+    double temp;
+    
+    while (i < access->max_iter && (a*a + b*b <= 4.0))
+    {
+        temp = a*a - b*b + access->ca;
+        b = 2*a*b + access->cb;
+        a = temp;
+        i++;
+    }
+    
+    return (i == access->max_iter) ? -1 : i;
+}
 ```
 
 ### Core Functions
 
 | Function | Description | Purpose |
 |----------|-------------|---------|
-| `input_checker` | Validates input arguments | Ensures 5 args and no empty strings |
-| `pid_cmd1` | Handles first command execution | Executes cmd1 with proper redirections |
-| `pid_cmd2` | Handles second command execution | Executes cmd2 with proper redirections |
-| `exec_cmd` | Executes the command | Handles both absolute and PATH resolution |
-| `open_file` | Opens/creates files | Manages file descriptors with proper flags |
+| `user_input` | Parse and validate CLI arguments | Determine fractal type |
+| `init_access` | Initialize MLX and data structures | Setup graphics system |
+| `put_image` | Render Mandelbrot | Generate pixel data |
+| `put_image_julia` | Render Julia | Generate Julia pixels |
+| `mouse_hook` | Handle mouse events | Zoom control |
+| `key_press_mandelbrot` | Handle keyboard (Mandelbrot) | Pan control |
+| `key_press_julia` | Handle keyboard (Julia) | Pan control |
+| `color_func` | Apply coloring algorithm | Create visual output |
+| `close_window` | Clean up resources | Proper memory deallocation |
 
-### Command Execution Functions
+### Zoom Mechanics
 
-| Function | Description | Usage |
-|----------|-------------|-------|
-| `cmd_bar` | Executes absolute path commands | When command contains '/' |
-| `cmd_not_bar` | Resolves command from PATH | Standard command execution |
-| `command_valid` | Finds executable in PATH | Searches all PATH directories |
-| `path` | Extracts PATH from environment | Splits PATH variable |
-
-### File Descriptor Operations
-
-**Command 1 (Read from file1, write to pipe):**
 ```c
-new_fd = open(file1, O_RDONLY);  // Open input file
-dup2(new_fd, 0);                 // Redirect stdin to file1
-dup2(pipe_fd[1], 1);             // Redirect stdout to pipe write
-```
-
-**Command 2 (Read from pipe, write to file2):**
-```c
-dup2(pipe_fd[0], 0);             // Redirect stdin to pipe read
-new_fd = open(file2, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-dup2(new_fd, 1);                 // Redirect stdout to file2
+int mouse_hook(int button, int x, int y, void *param)
+{
+    // Store old coordinates
+    old_re = to_real(x, access);
+    old_im = to_imaginary(y, access);
+    
+    // Adjust zoom
+    if (button == 4)  // Scroll up
+        access->zoom *= 1.05;
+    else              // Scroll down
+        access->zoom /= 1.05;
+    
+    // Calculate new coordinates at same pixel
+    new_re = to_real(x, access);
+    new_im = to_imaginary(y, access);
+    
+    // Offset to keep mouse position fixed
+    access->offset_x += (old_re - new_re);
+    access->offset_y += (old_im - new_im);
+    
+    // Re-render
+    mlx_destroy_image(access->mlx_connection, access->img);
+    create_image(access);
+    put_image(access);
+    return (0);
+}
 ```
 
 ## Project Structure
 
 ```
-pipex/
+fractol/
 ├── src/
-│   ├── pipex.c              # Main program and process management
-│   ├── input_validation.c   # Input checking and error handling
-│   ├── commands/
-│   │   ├── cmd1.c          # First command execution
-│   │   ├── cmd2.c          # Second command execution
-│   │   ├── exec_cmd.c      # Command execution logic
-│   │   ├── cmd_bar.c       # Absolute path execution
-│   │   └── cmd_not_bar.c   # PATH resolution execution
-│   ├── utils/
-│   │   ├── path.c          # PATH parsing and searching
-│   │   ├── command_valid.c # Command validation in PATH
-│   │   ├── file_utils.c    # File opening and handling
-│   │   └── error_utils.c   # Error printing functions
-│   └── parsing/
-│       └── bar.c           # Check for slash in command
+│   ├── main.c              # Main program and initialization
+│   ├── mandelbrot.c        # Mandelbrot calculations and rendering
+│   ├── julia.c             # Julia calculations and rendering
+│   ├── complex.c           # Coordinate conversion functions
+│   ├── image/
+│   │   ├── image.c         # Image creation and display
+│   │   └── color.c         # Color mapping algorithm
+│   ├── parsing/
+│   │   ├── input_parser.c  # CLI argument parsing
+│   │   └── validation.c    # Input validation
+│   └── utils/
+│       ├── cleanup.c       # Resource cleanup
+│       └── math_utils.c    # Helper math functions
 ├── includes/
-│   └── pipex.h             # Header with prototypes and structs
+│   ├── fractol.h           # Main header with prototypes
+│   └── constants.h         # Define WIDTH, HEIGHT, MAX_ITER
+├── minilibx-linux/         # MLX library (if included)
 ├── libft/                  # Custom C library (if used)
 ├── Makefile                # Compilation rules
 └── README.md              # This file
@@ -199,7 +317,7 @@ pipex/
 
 The project uses a Makefile with the following targets:
 
-- `make` or `make all`: Compiles the pipex program
+- `make` or `make all`: Compiles the fractol program
 - `make clean`: Removes object files
 - `make fclean`: Removes object files and executable
 - `make re`: Performs fclean followed by all
@@ -210,174 +328,138 @@ The project uses a Makefile with the following targets:
 -Wall -Wextra -Werror
 ```
 
+### Dependencies
+
+- **minilibx-linux**: Graphics library for rendering
+- **libft**: Custom C library (optional)
+- **libX11**: X Window System library
+- **libmlx.a**: MLX static library
+
+## Mathematical Concepts
+
+### Complex Numbers
+
+A complex number is represented as **a + bi** where:
+- **a** = real part
+- **b** = imaginary part
+- **i** = imaginary unit (√-1)
+
+**Complex arithmetic used:**
+- Addition: (a + bi) + (c + di) = (a+c) + (b+d)i
+- Squaring: (a + bi)² = a² - b² + 2abi
+
+### Escape Time Algorithm
+
+The escape time is the number of iterations before **|z|² > 4**:
+
+```
+|z|² = re² + im²
+```
+
+If iteration count reaches max_iter without escaping, the point is considered **in the set** (colored black or special color).
+
+### Mandelbrot vs Julia
+
+| Aspect | Mandelbrot | Julia |
+|--------|-----------|-------|
+| **Fixed Parameter** | c = 0 | c = user input |
+| **Iteration Value** | z₀ = 0 | z₀ = pixel coordinate |
+| **Parameter Space** | c-plane | z-plane |
+| **Patterns** | Connected body with details | Varies with c parameter |
+
+## Pixel Processing
+
+### Rendering Loop
+
+```c
+void put_image(t_access *access)
+{
+    for (int y = 0; y < HEIGHT; y++)
+    {
+        for (int x = 0; x < WIDTH; x++)
+        {
+            // Convert pixel to complex coordinate
+            double re = to_real(x, access);
+            double im = to_imaginary(y, access);
+            
+            // Calculate iterations to escape
+            int iterations = fractal_calc(re, im, access->max_iter);
+            
+            // Apply coloring based on iterations
+            color_func(access, x, y, iterations);
+        }
+    }
+    
+    // Display result
+    mlx_put_image_to_window(access->mlx_connection,
+        access->mlx_window, access->img, 0, 0);
+}
+```
+
+### Performance Optimization
+
+- **Pixel-by-pixel calculation**: Each pixel independently computed
+- **Fixed precision**: Double-precision floating point
+- **Early termination**: Loop breaks when |z| > 2 (escape threshold)
+- **Single image buffer**: Reused and destroyed on updates
+
 ## Testing
 
-### Basic Tests
+### Manual Testing
 
 ```bash
-# Test 1: Simple pipe
-echo "Hello World" > infile
-./pipex infile "cat" "wc -w" outfile
-cat outfile  # Should show: 2
+# Test Mandelbrot rendering
+./fractol mandelbrot
 
-# Test 2: grep and wc
-echo -e "hello\nworld\nhello" > infile
-./pipex infile "grep hello" "wc -l" outfile
-cat outfile  # Should show: 2
+# Test Julia with different parameters
+./fractol julia -0.70176 -0.3842
+./fractol julia -0.1011 0.9563
 
-# Test 3: Multiple arguments
-echo "one two three" > infile
-./pipex infile "cat -e" "grep $" outfile
-cat outfile  # Should show line endings
-
-# Compare with shell
-< infile cat | wc -w > shell_out
-./pipex infile "cat" "wc -w" pipex_out
-diff shell_out pipex_out  # Should be identical
+# Try zooming and panning in each
+# Scroll to zoom, arrow keys to pan
+# ESC to exit
 ```
 
-### Error Handling Tests
+### Visual Verification
+
+1. **Mandelbrot**: Should display main cardioid body with circular bulb
+2. **Julia**: Should display connected or disconnected dendritic patterns
+3. **Zoom**: Smoothly magnifies fractal details without artifacts
+4. **Pan**: Allows navigation through the complex plane
+5. **Colors**: Smooth gradients showing iteration depth
+
+### Error Cases
 
 ```bash
-# Test with non-existent input file
-./pipex nofile "cat" "wc" outfile
-# Should print error but continue
-
-# Test with invalid command
-./pipex infile "invalidcmd" "wc" outfile
-# Should print "Command not found"
-
-# Test with wrong number of arguments
-./pipex file1 cmd1
-# Should return error
-
-# Test with empty arguments
-./pipex "" "cat" "wc" outfile
-# Should return error
-
-# Test with non-executable file
-./pipex infile "/etc/passwd" "cat" outfile
-# Should print "Permission denied"
+./fractol                      # Should show usage
+./fractol invalid              # Should show error message
+./fractol julia 0.5            # Missing parameter
+./fractol julia abc def        # Invalid parameter type
+./fractol mandelbrot extra     # Extra parameters
 ```
 
-### Automated Test Script
+## Performance Notes
 
-```bash
-#!/bin/bash
+### Rendering Time Factors
 
-echo "=== PIPEX TESTING ==="
+1. **Resolution**: 1000×1000 = 1,000,000 pixels
+2. **Max Iterations**: Higher values = more computation
+3. **Zoom Level**: Deeper zooms may require more iterations
+4. **Pixel Escape Speed**: Early escapers render faster
 
-# Create test file
-echo "Hello World
-Test Line
-Another Line
-Hello Again" > test_input.txt
+### Optimization Techniques
 
-# Test 1: Basic functionality
-echo "Test 1: Basic cat | wc"
-./pipex test_input.txt "cat" "wc -l" test_output.txt
-< test_input.txt cat | wc -l > shell_output.txt
-if diff -q test_output.txt shell_output.txt > /dev/null; then
-    echo "✓ PASS"
-else
-    echo "✗ FAIL"
-fi
+- Pre-compute coordinate transformations
+- Use efficient complex arithmetic
+- Minimize memory allocations during rendering
+- Cache commonly used values
 
-# Test 2: grep and wc
-echo "Test 2: grep | wc"
-./pipex test_input.txt "grep Hello" "wc -w" test_output.txt
-< test_input.txt grep Hello | wc -w > shell_output.txt
-if diff -q test_output.txt shell_output.txt > /dev/null; then
-    echo "✓ PASS"
-else
-    echo "✗ FAIL"
-fi
+## Known Limitations
 
-# Test 3: Error handling
-echo "Test 3: Invalid command"
-./pipex test_input.txt "invalidcmd123" "cat" test_output.txt 2>&1 | grep -q "not found"
-if [ $? -eq 0 ]; then
-    echo "✓ PASS"
-else
-    echo "✗ FAIL"
-fi
-
-# Cleanup
-rm -f test_input.txt test_output.txt shell_output.txt
-
-echo "=== TESTING COMPLETE ==="
-```
-
-## Key Concepts
-
-### Pipes
-A **pipe** is a unidirectional data channel that can be used for inter-process communication. It has two ends:
-- **Read end** (pipe_fd[0]): Data comes out
-- **Write end** (pipe_fd[1]): Data goes in
-
-### Fork
-**Fork** creates a new process (child) that is a copy of the current process (parent):
-- Returns `0` in the child process
-- Returns child's PID in the parent process
-- Returns `-1` on error
-
-### File Descriptors
-Standard file descriptors:
-- **0 (STDIN)**: Standard input
-- **1 (STDOUT)**: Standard output
-- **2 (STDERR)**: Standard error
-
-### dup2
-**dup2(oldfd, newfd)** duplicates a file descriptor:
-- Makes `newfd` a copy of `oldfd`
-- Used for redirecting stdin/stdout
-
-### execve
-**execve(path, argv, envp)** replaces the current process with a new program:
-- Never returns on success (process is replaced)
-- Returns `-1` on error
-- All open file descriptors remain open
-
-### PATH Resolution
-When a command doesn't contain '/', the program:
-1. Extracts PATH from environment variables
-2. Splits PATH by ':'
-3. Searches each directory for the executable
-4. Checks if file exists (F_OK) and is executable (X_OK)
-
-### Process Management
-```c
-waitpid(pid, &status, 0);        // Wait for child to finish
-WIFEXITED(status);               // Check if exited normally
-WEXITSTATUS(status);             // Get exit code
-```
-
-## Error Codes
-
-| Exit Code | Meaning |
-|-----------|---------|
-| 0 | Success |
-| 1 | General error |
-| 126 | Permission denied (command not executable) |
-| 127 | Command not found |
-
-## Common Issues & Solutions
-
-### Issue: "Permission denied"
-**Cause**: Command exists but is not executable
-**Solution**: Check file permissions with `ls -l` or use `chmod +x`
-
-### Issue: "Command not found"
-**Cause**: Command doesn't exist in PATH or absolute path is wrong
-**Solution**: Verify command with `which command` or check absolute path
-
-### Issue: Output file not created
-**Cause**: First command fails before second runs
-**Solution**: Check if input file exists and first command is valid
-
-### Issue: Different output than shell
-**Cause**: Exit status or error handling differs
-**Solution**: Compare stderr output and exit codes
+- Fixed 1000×1000 resolution
+- Fixed maximum iteration count
+- Limited zoom depth before numerical precision issues
+- Performance depends on CPU speed
 
 ## Author
 
@@ -385,4 +467,4 @@ WEXITSTATUS(status);             // Get exit code
 
 ---
 
-*This project demonstrates fundamental Unix system programming concepts including process creation, inter-process communication, file descriptor manipulation, and program execution.*
+*This project demonstrates graphics programming, complex number mathematics, real-time rendering, and interactive event handling in systems programming.*
