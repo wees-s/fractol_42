@@ -6,7 +6,7 @@
 /*   By: wedos-sa <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/11 13:18:14 by wedos-sa          #+#    #+#             */
-/*   Updated: 2025/10/16 14:20:50 by wedos-sa         ###   ########.fr       */
+/*   Updated: 2025/10/16 14:30:45 by wedos-sa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 void	input_error(t_access *access)
 {
 	ft_printf("Fract-ol\n\nWrong parameter. Try:\n");
-	ft_printf("./fractol mandelbrot\n./fractol julia x.xx y.yy");
+	ft_printf("./fractol mandelbrot\n./fractol julia x.xx y.yy\n");
 	close_window(access);
 }
 
@@ -38,7 +38,7 @@ int	user_input(int argc, char **argv)
 		return (2);
 	}
 	ft_printf("Fract-ol\n\nWrong parameter. Try:\n");
-	ft_printf("./fractol mandelbrot\n./fractol julia x.xx y.yy");
+	ft_printf("./fractol mandelbrot\n./fractol julia x.xx y.yy\n");
 	exit(EXIT_FAILURE);
 	return (0);
 }
@@ -88,6 +88,8 @@ int	main(int argc, char **argv)
 	init_access(&access, argc, argv);
 	if (access.fractal == 1)
 	{
+		if (argc > 2)
+			input_error(&access);
 		put_image(&access);
 		mlx_mouse_hook(access.mlx_window, mouse_hook, &access);
 		mlx_key_hook(access.mlx_window, key_press_mandelbrot, &access);
