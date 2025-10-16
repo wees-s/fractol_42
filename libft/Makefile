@@ -6,7 +6,7 @@
 #    By: wedos-sa <wedos-sa@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/07/15 11:17:28 by wedos-sa          #+#    #+#              #
-#    Updated: 2025/10/15 17:47:03 by wedos-sa         ###   ########.fr        #
+#    Updated: 2025/10/16 10:11:07 by wedos-sa         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -62,30 +62,31 @@ SRCS =	ft_atoi.c			\
 	ft_print_hex.c			\
 	ft_all_space.c			\
 	ft_atof.c				\
+	ft_isdouble.c
 
 OBJS = $(SRCS:.c=.o)
 
 all: $(NAME)
 
 $(NAME): $(OBJS)
-	ar -rcs $(NAME) $(OBJS)
+	@ar -rcs $(NAME) $(OBJS)
 	@echo "================================================="
 	@echo "LINK ALL IN --> $(NAME)"
 
 %.o: %.c
 	@echo "Compiling --> $(<) --> $(@)"
-	$(CC) $(CFLAGS) -c $< -o $@
+	@$(CC) $(CFLAGS) -c $< -o $@
 	@echo "================================================="
 
 clean:
 	@echo "Cleaning (rm -f)"
 	@echo "================================================="
-	rm -f $(OBJS)
+	@rm -f $(OBJS)
 
 fclean:	clean
 	@echo "================================================="
 	@echo "Cleaning (rm -f)"
-	rm -f $(NAME)
+	@rm -f $(NAME)
 
 re: fclean all
 

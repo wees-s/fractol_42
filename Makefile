@@ -24,30 +24,30 @@ RMAKE = make re
 all: $(PROGRAM_NAME)
 
 $(NAME): $(OBJS)
-	cd ./libft && $(RMAKE)
-	cd ./minilibx-linux && $(RMAKE)
+	@cd ./libft && $(RMAKE)
+	@$(RMAKE) -sC minilibx-linux/
 	@echo "============================="
 	@echo "All $(OBJS) --> $@"
-	ar rcs $@ $(OBJS)
+	@ar rcs $@ $(OBJS)
 
 $(PROGRAM_NAME): $(NAME)
 	@echo "============================="
 	@echo "Compiling $(PROGRAM_NAME)"
-	$(CC) main.c $(NAME) $(DIR_LIB) $(DIR_MLX) $(MLX_FLAGS) -o $(PROGRAM_NAME)
+	@$(CC) main.c $(NAME) $(DIR_LIB) $(DIR_MLX) $(MLX_FLAGS) -o $(PROGRAM_NAME)
 
 %.o: %.c
 	@echo "Compiling $< ..."
-	$(CC) $(CFLAGS) -c $< -o $@
+	@$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
 	@echo "Cleaning all $(OBJS)"
-	rm -f $(OBJS)
-	cd ./libft && make clean
+	@rm -f $(OBJS)
+	@cd ./libft && make clean
 
 fclean: clean
-	rm -f $(NAME)
-	rm -f $(PROGRAM_NAME)
-	cd ./libft && make fclean
+	@rm -f $(NAME)
+	@rm -f $(PROGRAM_NAME)
+	@cd ./libft && make fclean
 
 re: fclean all
 

@@ -6,7 +6,7 @@
 /*   By: wedos-sa <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/11 13:18:14 by wedos-sa          #+#    #+#             */
-/*   Updated: 2025/10/15 17:47:35 by wedos-sa         ###   ########.fr       */
+/*   Updated: 2025/10/16 10:40:51 by wedos-sa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,9 @@ int	user_input(int argc, char **argv)
 {
 	if (argc < 2)
 		;
-	else if (ft_strncmp(argv[1], "mandelbrot", 10) == 0)
+	else if (ft_strncmp(argv[1], "mandelbrot", 11) == 0)
 		return (1);
-	else if (ft_strncmp("julia", argv[1], 6) == 0)
+	else if (ft_strncmp("julia", argv[1], 7) == 0)
 	{
 		if (argc > 4 || argc < 4)
 		{
@@ -41,10 +41,28 @@ void	input_to_julia(char **argv, t_access *access)
 	double	x;
 	double	y;
 
-	x = ft_atof(argv[2]);
-	access->ca = x;
-	y = ft_atof(argv[3]);
-	access->cb = y;
+	if (ft_isdouble(argv[2]))
+	{
+		x = ft_atof(argv[2]);
+		access->ca = x;
+	}
+	else
+	{
+		ft_printf("Fract-ol\n\nWrong parameter. Try:\n");
+		ft_printf("./fractol mandelbrot\n./fractol julia x.xx y.yy");
+		close_window(access);
+	}
+	if (ft_isdouble(argv[3]))
+	{
+		y = ft_atof(argv[3]);
+		access->cb = y;
+	}
+	else
+	{
+		ft_printf("Fract-ol\n\nWrong parameter. Try:\n");
+		ft_printf("./fractol mandelbrot\n./fractol julia x.xx y.yy\n");
+		close_window(access);
+	}
 }
 
 int	close_window(t_access *access)
@@ -59,27 +77,6 @@ int	close_window(t_access *access)
 		free(access->mlx_connection);
 	}
 	exit(0);
-	return (0);
-}
-
-int	key_press_mandelbrot(int keycode, void *param)
-{
-	t_access	*access;
-
-	access = (t_access *)param;
-	if (keycode == 65307)
-		close_window(access);
-	if (keycode == 65361)
-		access->offset_x = access->offset_x - 0.05;
-	if (keycode == 65363)
-		access->offset_x = access->offset_x + 0.05;
-	if (keycode == 65362)
-		access->offset_y = access->offset_y + 0.05;
-	if (keycode == 65364)
-		access->offset_y = access->offset_y - 0.05;
-	mlx_destroy_image(access->mlx_connection, access->img);
-	create_image(access);
-	put_image(access);
 	return (0);
 }
 

@@ -6,7 +6,7 @@
 /*   By: wedos-sa <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/13 18:25:45 by wedos-sa          #+#    #+#             */
-/*   Updated: 2025/10/15 16:20:21 by wedos-sa         ###   ########.fr       */
+/*   Updated: 2025/10/16 10:42:20 by wedos-sa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,26 +36,6 @@ int	fractal_calc(double x, double y, int max_iter)
 		return (i);
 }
 
-void	color_func(t_access *access, int x, int y, int i)
-{
-	char	*pixel;
-	int		color;
-	int		t;
-
-	color = 0;
-	t = 0;
-	pixel = access->img_pointer
-		+ (y * access->line_len + x * (access->bits_per_pixel / 8));
-	if (i == -1)
-		color = 0x000000;
-	else
-	{
-		t = (i * 256) / access->max_iter;
-		color = (t << 16) | ((255 - t) << 8) | 255;
-	}
-	*(unsigned int *)pixel = color;
-}
-
 void	put_image(t_access *access)
 {
 	int			x;
@@ -81,19 +61,6 @@ void	put_image(t_access *access)
 		access->mlx_window, access->img, 0, 0);
 }
 
-void	create_image(t_access *access)
-{
-	access->img = mlx_new_image(
-			access->mlx_connection,
-			WIDTH,
-			HEIGHT);
-	access->img_pointer = mlx_get_data_addr(
-			access->img,
-			&access->bits_per_pixel,
-			&access->line_len,
-			&access->endian);
-}
-
 int	mouse_hook(int button, int x, int y, void *param)
 {
 	t_access	*access;
@@ -115,6 +82,27 @@ int	mouse_hook(int button, int x, int y, void *param)
 	access->new_im = to_imaginary(y, access);
 	access->offset_x += (access->old_re - access->new_re);
 	access->offset_y += (access->old_im - access->new_im);
+	mlx_destroy_image(access->mlx_connection, access->img);
+	create_image(access);
+	put_image(access);
+	return (0);
+}
+
+int	key_press_mandelbrot(int keycode, void *param)
+{
+	t_access	*access;
+
+	access = (t_access *)param;
+	if (keycode == 65307)
+		close_window(access);
+	if (keycode == 65361)
+		access->offset_x = access->offset_x - 0.05;
+	if (keycode == 65363)
+		access->offset_x = access->offset_x + 0.05;
+	if (keycode == 65362)
+		access->offset_y = access->offset_y + 0.05;
+	if (keycode == 65364)
+		access->offset_y = access->offset_y - 0.05;
 	mlx_destroy_image(access->mlx_connection, access->img);
 	create_image(access);
 	put_image(access);
