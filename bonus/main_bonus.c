@@ -6,11 +6,18 @@
 /*   By: wedos-sa <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/11 13:18:14 by wedos-sa          #+#    #+#             */
-/*   Updated: 2025/10/16 10:40:51 by wedos-sa         ###   ########.fr       */
+/*   Updated: 2025/10/16 14:20:50 by wedos-sa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fractol.h"
+
+void	input_error(t_access *access)
+{
+	ft_printf("Fract-ol\n\nWrong parameter. Try:\n");
+	ft_printf("./fractol mandelbrot\n./fractol julia x.xx y.yy");
+	close_window(access);
+}
 
 int	user_input(int argc, char **argv)
 {
@@ -24,7 +31,7 @@ int	user_input(int argc, char **argv)
 		{
 			ft_printf("Wrong parameter, try any of these coordinates:\n\n");
 			ft_printf("./fractol julia <x> <y>\n");
-			ft_printf("-0.70176 -0.3842\n-0.1011 0.9563\n");
+			ft_printf("-0.70176 -0.3842\n-0.355 0.1\n");
 			ft_printf("0.355 0.355\n-0.7269 0.1889\n");
 			exit(EXIT_FAILURE);
 		}
@@ -41,28 +48,22 @@ void	input_to_julia(char **argv, t_access *access)
 	double	x;
 	double	y;
 
+	if (!ft_isdigit(argv[2][0]) || !ft_isdigit(argv[3][0]))
+		input_error(access);
 	if (ft_isdouble(argv[2]))
 	{
 		x = ft_atof(argv[2]);
 		access->ca = x;
 	}
 	else
-	{
-		ft_printf("Fract-ol\n\nWrong parameter. Try:\n");
-		ft_printf("./fractol mandelbrot\n./fractol julia x.xx y.yy");
-		close_window(access);
-	}
+		input_error(access);
 	if (ft_isdouble(argv[3]))
 	{
 		y = ft_atof(argv[3]);
 		access->cb = y;
 	}
 	else
-	{
-		ft_printf("Fract-ol\n\nWrong parameter. Try:\n");
-		ft_printf("./fractol mandelbrot\n./fractol julia x.xx y.yy\n");
-		close_window(access);
-	}
+		input_error(access);
 }
 
 int	close_window(t_access *access)
