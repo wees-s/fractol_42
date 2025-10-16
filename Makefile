@@ -2,7 +2,7 @@ NAME = fractol.a
 
 PROGRAM_NAME = fractol
 
-CC = gcc
+CC = cc
 
 CFLAGS = -Wall -Wextra -Werror
 

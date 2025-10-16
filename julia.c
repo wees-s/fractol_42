@@ -6,7 +6,7 @@
 /*   By: wedos-sa <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 10:31:34 by wedos-sa          #+#    #+#             */
-/*   Updated: 2025/10/15 16:26:18 by wedos-sa         ###   ########.fr       */
+/*   Updated: 2025/10/16 11:06:55 by wedos-sa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,15 +44,9 @@ int	mouse_hook_julia(int button, int x, int y, void *param)
 	access->old_re = to_real(x, access);
 	access->old_im = to_imaginary(y, access);
 	if (button == 4)
-	{
-		access->max_iter *= 1.003;
 		access->zoom *= 1.05;
-	}
 	else
-	{
-		access->max_iter /= 1.003;
 		access->zoom /= 1.05;
-	}
 	access->new_re = to_real(x, access);
 	access->new_im = to_imaginary(y, access);
 	access->offset_x += (access->old_re - access->new_re);

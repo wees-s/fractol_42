@@ -6,7 +6,7 @@
 /*   By: wedos-sa <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/13 18:25:45 by wedos-sa          #+#    #+#             */
-/*   Updated: 2025/10/16 10:42:20 by wedos-sa         ###   ########.fr       */
+/*   Updated: 2025/10/16 11:07:06 by wedos-sa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,15 +69,9 @@ int	mouse_hook(int button, int x, int y, void *param)
 	access->old_re = to_real(x, access);
 	access->old_im = to_imaginary(y, access);
 	if (button == 4)
-	{
-		access->max_iter *= 1.003;
 		access->zoom *= 1.05;
-	}
 	else
-	{
-		access->max_iter /= 1.003;
 		access->zoom /= 1.05;
-	}
 	access->new_re = to_real(x, access);
 	access->new_im = to_imaginary(y, access);
 	access->offset_x += (access->old_re - access->new_re);
